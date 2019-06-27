@@ -4,6 +4,7 @@ import { Route, Switch, Link } from "react-router-dom";
 import { InteractiveExample } from "./ingredients/interactive-example";
 import { Attributes } from "./ingredients/attributes";
 import { Examples } from "./ingredients/examples";
+import { SearchWidget } from "./Search";
 
 function App(appProps) {
   return (
@@ -27,11 +28,14 @@ function App(appProps) {
 export default App;
 
 function Header(props) {
+  // console.log("HEADER.PROPS:", props.location.pathname);
   return (
     <header>
       <h1>
         <Link to="/">MDN Web Docs</Link>
       </h1>
+      {/* <SearchWidget {...props} /> */}
+      <SearchWidget pathname={props.location.pathname} />
     </header>
   );
 }
