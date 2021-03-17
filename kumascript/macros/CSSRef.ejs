@@ -392,6 +392,57 @@ function buildSublist(pages, title) {
   return result;
 }
 
+function buildOtherSublist(pages, title) {
+  let result = `<ol>`;
+
+  for (const page of pages) {
+    const url = page.url.replace('en-US', locale);
+    const title = htmlEscape(page.title);
+
+    const translated = false;
+    if (locale != 'en-US') {
+        page.translations.forEach(function(translation){
+            if (translation.locale === locale) {
+                url = translation.url;
+                title = htmlEscape(translation.title);
+                translated = true;
+            }
+        });
+    }
+
+    const cta = '';
+     if (!translated && locale != 'en-US') {
+        cta += ' <a href="'+ url +'$translate" style="opacity:0.5" title="'+ text['title'] + '">' + text['translate'] + '</a>';
+    }
+
+    result += '<li>';
+
+    if (hasTag(page, 'Experimental')) {
+        result += badges.ExperimentalBadge;
+    }
+
+    if (hasTag(page, 'Deprecated')) {
+        result += badges.DeprecatedBadge;
+    }
+
+    if (rtlLocales.indexOf(locale) != -1) {
+        result += '<bdi>';
+    }
+
+    result += '<a href="' + url + '#guides">' + title + '</a>' + cta;
+
+    if (rtlLocales.indexOf(locale) != -1) {
+        result += '</bdi>';
+    }
+
+    result += '</li>';
+  }
+
+  result += '</ol>';
+
+  return result;
+}
+
 %>
 
 <section class="Quick_links" id="Quick_Links">
@@ -473,99 +524,7 @@ function buildSublist(pages, title) {
 
   <li><strong>Guides</strong></li>
   <li class="toggle">
-      <details>
-          <summary>Flow layout</summary>
-          <ol>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Flow_Layout/Block_and_Inline_Layout_in_Normal_Flow">Block and Inline Layout in Normal Flow</a></li>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Flow_Layout/In_Flow_and_Out_of_Flow">In Flow and Out of Flow</a></li>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Flow_Layout/Formatting_Contexts_Explained">Formatting Contexts Explained</a></li>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Flow_Layout/Flow_Layout_and_Writing_Modes">Flow Layout and Writing Modes</a></li>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Flow_Layout/Flow_Layout_and_Overflow">Flow Layout and Overflow</a></li>          </ol>
-      </details>
-  </li>
-  <li class="toggle">
-      <details>
-          <summary>Flexbox</summary>
-          <ol>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Flexible_Box_Layout/Basic_Concepts_of_Flexbox">Basic Concepts of Flexbox</a></li>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Flexible_Box_Layout/Relationship_of_Flexbox_to_Other_Layout_Methods">Comparison with other layout methods</a></li>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Flexible_Box_Layout/Aligning_Items_in_a_Flex_Container">Aligning items in a flex container</a></li>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Flexible_Box_Layout/Ordering_Flex_Items">Ordering flex items</a></li>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Flexible_Box_Layout/Controlling_Ratios_of_Flex_Items_Along_the_Main_Ax">Controlling flex item ratios</a></li>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Flexible_Box_Layout/Mastering_Wrapping_of_Flex_Items">Mastering wrapping of flex items</a></li>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Flexible_Box_Layout/Typical_Use_Cases_of_Flexbox">Typical use cases of Flexbox</a></li>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Flexible_Box_Layout/Backwards_Compatibility_of_Flexbox">Backwards compatibility of Flexbox</a></li>
-          </ol>
-      </details>
-  </li>
-  <li class="toggle">
-      <details>
-          <summary>Grid</summary>
-          <ol>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Grid_Layout/Basic_Concepts_of_Grid_Layout">Basics concepts of grid layout</a></li>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Grid_Layout/Relationship_of_Grid_Layout">Relationship to other layout methods</a></li>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Grid_Layout/Line-based_Placement_with_CSS_Grid">Line-based placement</a></li>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Grid_Layout/Grid_Template_Areas">Grid template areas</a></li>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Grid_Layout/Layout_using_Named_Grid_Lines">Layout using named grid lines</a></li>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Grid_Layout/Auto-placement_in_CSS_Grid_Layout">Auto-placement in grid layout</a></li>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Grid_Layout/Box_Alignment_in_CSS_Grid_Layout">Box alignment in grid layout</a></li>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Grid_Layout/CSS_Grid,_Logical_Values_and_Writing_Modes">Grids, logical values and writing modes</a></li>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Grid_Layout/CSS_Grid_Layout_and_Accessibility">CSS Grid Layout and Accessibility</a></li>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Grid_Layout/CSS_Grid_and_Progressive_Enhancement">CSS Grid Layout and Progressive Enhancement</a></li>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Grid_Layout/Realizing_common_layouts_using_CSS_Grid_Layout">Realizing common layouts using grids</a></li>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Grid_Layout/Subgrid">Subgrid</a></li>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Grid_Layout/Masonry_Layout">Masonry layout</a></li>
-         </ol>
-      </details>
-  </li>
-  <li class="toggle">
-      <details>
-          <summary>Columns</summary>
-          <ol>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Columns/Basic_Concepts_of_Multicol">Basic Concepts of Multicol</a></li>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Columns/Styling_Columns">Styling Columns</a></li>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Columns/Spanning_Columns">Spanning and Balancing</a></li>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Columns/Handling_Overflow_in_Multicol">Handling Overflow in Multicol</a></li>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Columns/Handling_content_breaks_in_multicol">Content Breaks in Multicol</a></li>
-          </ol>
-      </details>
-  </li>
-  <li class="toggle">
-      <details>
-          <summary>Shapes</summary>
-          <ol>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Shapes/Overview_of_CSS_Shapes">Overview of CSS Shapes</a></li>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Shapes/Shapes_From_Box_Values">Shapes from Box Values</a></li>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Shapes/Basic_Shapes">Basic Shapes</a></li>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Shapes/Shapes_From_Images">Shapes from Images</a></li>
-          </ol>
-      </details>
-  </li>
-  <li class="toggle">
-      <details>
-          <summary>Fonts</summary>
-          <ol>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Fonts/OpenType_fonts_guide">OpenType font features guide</a></li>
-            <li><a href="/en-US/docs/Web/CSS/CSS_Fonts/Variable_Fonts_Guide">Variable fonts guide</a></li>
-          </ol>
-      </details>
-  </li>
-  <li class="toggle">
-      <details>
-          <summary>Layout cookbook</summary>
-          <ol>
-            <li><a href="/en-US/docs/Web/CSS/Layout_cookbook/Media_objects">Media objects</a></li>
-            <li><a href="/en-US/docs/Web/CSS/Layout_cookbook/Column_layouts">Columns</a></li>
-            <li><a href="/en-US/docs/Web/CSS/Layout_cookbook/Center_an_element">Center an element</a></li>
-            <li><a href="/en-US/docs/Web/CSS/Layout_cookbook/Sticky_footers">Sticky footers</a></li>
-            <li><a href="/en-US/docs/Web/CSS/Layout_cookbook/Split_Navigation">Split navigation</a></li>
-            <li><a href="/en-US/docs/Web/CSS/Layout_cookbook/Breadcrumb_Navigation">Breadcrumb navigation</a></li>
-            <li><a href="/en-US/docs/Web/CSS/Layout_cookbook/List_group_with_badges">List group with badges</a></li>
-            <li><a href="/en-US/docs/Web/CSS/Layout_cookbook/Pagination">Pagination</a></li>
-            <li><a href="/en-US/docs/Web/CSS/Layout_cookbook/Card">Card</a></li>
-            <li><a href="/en-US/docs/Web/CSS/Layout_cookbook/Grid_wrapper">Grid wrapper</a></li>
-          </ol>
-      </details>
+  <%-buildOtherSublist(groups);%>
   </li>
 
   <li><strong>Tools</strong></li>
