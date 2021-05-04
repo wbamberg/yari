@@ -1,4 +1,9 @@
-const { VALID_LOCALES, LOCALE_ALIASES } = require("../constants");
+const {
+  DEFAULT_LOCALE,
+  VALID_LOCALES,
+  LOCALE_ALIASES,
+  RETIRED_LOCALES,
+} = require("../constants");
 
 const startRe = /^\^?\/?/;
 const startTemplate = /^\//;
@@ -65,12 +70,12 @@ for (const locale of VALID_LOCALES.keys()) {
 }
 
 for (const [alias, correct] of LOCALE_ALIASES) {
-  // E.g. things like `en` -> `en-us` or `pt` -> `pt-pt`
+  // E.g. things like `en` -> `en-us` or `pt` -> `pt-br`
   fixableLocales.set(alias, correct);
 }
 
-// All things like `/en_Us/docs/...` -> `/en-US/docs/...`
 const LOCALE_PATTERNS = [
+  // All things like `/en_Us/docs/...` -> `/en-US/docs/...`
   redirect(
     new RegExp(
       `^(?<locale>${Array.from(fixableLocales.keys()).join(
@@ -91,6 +96,21 @@ const LOCALE_PATTERNS = [
       return `/${locale}/${suffix || ""}`;
     },
     { permanent: true }
+  ),
+  // Retired locales
+  redirect(
+    new RegExp(
+      `^(?<locale>${Array.from(RETIRED_LOCALES.keys()).join(
+        "|"
+      )})(/(?<suffix>.*)|$)`,
+      "i"
+    ),
+    ({ locale, suffix }) => {
+      const join = suffix && suffix.includes("?") ? "&" : "?";
+      return `/${DEFAULT_LOCALE}/${
+        (suffix || "") + join
+      }retiredLocale=${RETIRED_LOCALES.get(locale.toLowerCase())}`;
+    }
   ),
 ];
 
@@ -1151,6 +1171,23 @@ for (const [pattern, path] of [
 }
 
 const MISC_REDIRECT_PATTERNS = [
+  localeRedirect(/^account\/?$/i, "/settings", {
+    permanent: false,
+  }),
+  localeRedirect(
+    /^profile(?:|\/stripe_subscription|\/edit)\/?$/i,
+    "/settings",
+    {
+      permanent: false,
+    }
+  ),
+  localeRedirect(
+    /^profiles\/(?:[^\/]+)(?:|\/edit|\/delete)\/?$/i,
+    "/settings",
+    {
+      permanent: false,
+    }
+  ),
   localeRedirect(/^docs\/Core_JavaScript_1.5_/i, "/docs/Web/JavaScript/", {
     permanent: true,
     // This will convert :

@@ -166,12 +166,12 @@ describe("Testing the Express server", () => {
     const response = await got(serverURL("/"), {
       followRedirect: false,
       headers: {
-        Cookie: "preferredlocale=SV-se",
+        Cookie: "preferredlocale=ja",
         "Accept-language": "fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5",
       },
     });
     expect(response.statusCode).toBe(302);
-    expect(response.headers.location).toBe("/sv-SE/");
+    expect(response.headers.location).toBe("/ja/");
   });
 });
 
@@ -186,5 +186,15 @@ describe("Testing the CRUD apps", () => {
     await page.goto(devURL("/"));
     await expect(page).toClick("a", { text: "Flaws Dashboard" });
     await expect(page).toMatch("Documents with flaws found (0)");
+  });
+
+  withCrud("open the sitemap app", async () => {
+    await page.goto(devURL("/"));
+    await expect(page).toMatch("Writer's home page");
+    await expect(page).toClick("a", { text: "Sitemap" });
+    await expect(page).toMatchElement("a", { text: "Web" });
+    await expect(page).toMatchElement("a", { text: "Learn" });
+    await expect(page).toClick("a", { text: "Glossary" });
+    await expect(page).toMatchElement("a", { text: "Glossary/PNG" });
   });
 });

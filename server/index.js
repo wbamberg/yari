@@ -77,8 +77,8 @@ const proxy = FAKE_V1_API
           : "http://"
       }${PROXY_HOSTNAME}`,
       changeOrigin: true,
-      proxyTimeout: 3000,
-      timeout: 3000,
+      proxyTimeout: 10000,
+      timeout: 10000,
     });
 
 app.use("/api/v1", proxy);
@@ -93,11 +93,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/_document", documentRouter);
 
 app.get("/_open", (req, res) => {
-  const { line, column, filepath } = req.query;
-  if (!filepath) {
-    throw new Error("No .filepath in the request query");
-  }
-
+  const { line, column, filepath, url } = req.query;
   // Sometimes that 'filepath' query string parameter is a full absolute
   // filepath (e.g. /Users/peterbe/yari/content.../index.html), which usually
   // happens when you this is used from the displayed flaws on a preview
@@ -105,12 +101,22 @@ app.get("/_open", (req, res) => {
   // But sometimes, it's a relative path and if so, it's always relative
   // to the main builder source.
   let absoluteFilepath;
-  if (fs.existsSync(filepath)) {
-    absoluteFilepath = filepath;
+  if (filepath) {
+    if (fs.existsSync(filepath)) {
+      absoluteFilepath = filepath;
+    } else {
+      const [locale] = filepath.split(path.sep);
+      const root = getRoot(locale);
+      absoluteFilepath = path.join(root, filepath);
+    }
+  } else if (url) {
+    const document = Document.findByURL(url);
+    if (!document) {
+      res.status(410).send(`No known document by the URL '${url}'\n`);
+    }
+    absoluteFilepath = document.fileInfo.path;
   } else {
-    const [locale] = filepath.split(path.sep);
-    const root = getRoot(locale);
-    absoluteFilepath = path.join(root, filepath);
+    throw new Error("No .filepath or .url in the request query");
   }
 
   // Double-check that the file can be found.
@@ -156,7 +162,7 @@ app.get("/*/contributors.txt", async (req, res) => {
 });
 
 app.get("/*", async (req, res) => {
-  if (req.url.startsWith("_")) {
+  if (req.url.startsWith("/_")) {
     // URLs starting with _ is exclusively for the meta-work and if there
     // isn't already a handler, it's something wrong.
     return res.status(404).send("Page not found");
@@ -176,11 +182,12 @@ app.get("/*", async (req, res) => {
   }
 
   if (!req.url.includes("/docs/")) {
-    // This should really only be expected for "single page apps".
-    // All *documents* should be handled by the
-    // `if (req.url.includes("/docs/"))` test above.
-    res.sendFile(path.join(STATIC_ROOT, "/index.html"));
-    return;
+    // If it's a known SPA, like `/en-US/search` then that should have been
+    // matched to its file and not end up here in the catchall handler.
+    // Simulate what we do in the Lambda@Edge.
+    return res
+      .status(404)
+      .sendFile(path.join(STATIC_ROOT, "en-us", "_spas", "404.html"));
   }
 
   // TODO: Would be nice to have a list of all supported file extensions

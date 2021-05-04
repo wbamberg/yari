@@ -125,13 +125,20 @@ class UploadFileTask(UploadTask):
     Class for file upload tasks.
     """
 
-    def __init__(self, file_path: Path, key: str, dry_run=False):
+    def __init__(
+        self,
+        file_path: Path,
+        key: str,
+        dry_run=False,
+        default_cache_control=DEFAULT_CACHE_CONTROL,
+    ):
         self.key = key
         self.file_path = file_path
         self.dry_run = dry_run
+        self.default_cache_control = default_cache_control
 
     def __repr__(self):
-        return f"UploadFileTask({self.file_path}, {self.key})"
+        return f"{self.__class__.__name__}({self.file_path}, {self.key})"
 
     def __str__(self):
         return self.key
@@ -203,9 +210,12 @@ class UploadFileTask(UploadTask):
         if self.is_hashed:
             cache_control_seconds = HASHED_CACHE_CONTROL
         else:
-            cache_control_seconds = DEFAULT_CACHE_CONTROL
+            cache_control_seconds = self.default_cache_control
 
-        return f"max-age={cache_control_seconds}, public"
+        if cache_control_seconds == 0:
+            return "max-age=0, no-cache, no-store, must-revalidate"
+        else:
+            return f"max-age={cache_control_seconds}, public"
 
     def upload(self, bucket_manager):
         if not self.dry_run:
@@ -344,7 +354,54 @@ class BucketManager:
                 break
         return result
 
-    def iter_file_tasks(self, build_directory, for_counting_only=False, dry_run=False):
+    def iter_file_tasks(
+        self,
+        build_directory,
+        for_counting_only=False,
+        dry_run=False,
+        default_cache_control=DEFAULT_CACHE_CONTROL,
+    ):
+        # The order matters! In particular the order of static assets compared to
+        # the HTML files that reference said static assets.
+        # If you upload the HTML files before we upload the static assets, what
+        # might happen is this:
+        #
+        #  ...
+        #  <link rel=stylesheet href=/static/css/main.350fa0c1.css">
+        #  <title>JavaScript MDN Web Docs</title>
+        #  ...
+        #
+        # Now if the CDN serves this new HTML file *before*
+        # the /static/css/main.350fa0c1.css file has been uploaded, you get a busted
+        # page.
+        # So explicitly upload all the static assets first.
+        # I.e. `<build_directory>/static/`
+        # And since we later processed the whole of `<build_directory>` we'll
+        # come across these static files again. So that's why we populate a
+        # `set` so that when we do the second pass, we'll know what we've already
+        # yielded.
+        # Origin for this is: https://github.com/mdn/yari/issues/3315
+        done = set()
+
+        # Walk the build_directory/static and yield file upload tasks.
+        for fp in iterdir(build_directory / "static"):
+            # Exclude any files that aren't artifacts of the build.
+            if fp.name.startswith(".") or fp.name.endswith("~"):
+                continue
+
+            key = self.get_key(build_directory, fp)
+
+            if for_counting_only:
+                yield 1
+            else:
+                yield UploadFileTask(
+                    fp,
+                    key,
+                    dry_run=dry_run,
+                    default_cache_control=default_cache_control,
+                )
+            done.add(key)
+
         # Prepare a computation of what the root /index.html file would be
         # called as a S3 key. Do this once so it becomes a quicker operation
         # later when we compare *each* generated key to see if it matches this.
@@ -360,6 +417,11 @@ class BucketManager:
 
             key = self.get_key(build_directory, fp)
 
+            if key in done:
+                # This can happen since we might have explicitly processed this
+                # in the for-loop above. See comment at the beginning of this method.
+                continue
+
             # The root index.html file is never useful. It's not the "home page"
             # because the home page is actually `/$locale/` since `/` is handled
             # specifically by the CDN.
@@ -373,7 +435,12 @@ class BucketManager:
             if for_counting_only:
                 yield 1
             else:
-                yield UploadFileTask(fp, key, dry_run=dry_run)
+                yield UploadFileTask(
+                    fp,
+                    key,
+                    dry_run=dry_run,
+                    default_cache_control=default_cache_control,
+                )
 
     def iter_redirect_tasks(
         self, content_roots, for_counting_only=False, dry_run=False
@@ -422,6 +489,7 @@ class BucketManager:
         on_task_complete=None,
         skip_redirects=False,
         dry_run=False,
+        default_cache_control=DEFAULT_CACHE_CONTROL,
     ):
         with concurrent.futures.ThreadPoolExecutor(
             max_workers=MAX_WORKERS_PARALLEL_UPLOADS
@@ -433,7 +501,13 @@ class BucketManager:
                 task_iters.append(
                     self.iter_redirect_tasks(content_roots, dry_run=dry_run)
                 )
-            task_iters.append(self.iter_file_tasks(build_directory, dry_run=dry_run))
+            task_iters.append(
+                self.iter_file_tasks(
+                    build_directory,
+                    dry_run=dry_run,
+                    default_cache_control=default_cache_control,
+                )
+            )
             for task_iter in task_iters:
                 futures = {}
                 for task in task_iter:
@@ -498,6 +572,14 @@ class BucketManager:
         return timer
 
 
+def parse_archived_txt_file(file: Path):
+    with open(file) as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith("#"):
+                yield line
+
+
 def upload_content(build_directory, content_roots, config):
     full_timer = StopWatch().start()
 
@@ -508,6 +590,8 @@ def upload_content(build_directory, content_roots, config):
     show_progress_bar = not config["no_progressbar"]
     upload_redirects = not config["no_redirects"]
     prune = config["prune"]
+    archived_txt_file = config["archived_files"]
+    default_cache_control = config["default_cache_control"]
 
     log.info(f"Upload files from: {build_directory}")
     if upload_redirects:
@@ -561,6 +645,7 @@ def upload_content(build_directory, content_roots, config):
             on_task_complete=on_task_complete,
             skip_redirects=not upload_redirects,
             dry_run=dry_run,
+            default_cache_control=default_cache_control,
         )
 
     if dry_run:
@@ -583,6 +668,15 @@ def upload_content(build_directory, content_roots, config):
         # now deleted.
         now = datetime.datetime.utcnow().replace(tzinfo=UTC)
         delete_keys = []
+
+        archived_files_as_keys = set()
+        if archived_txt_file:
+            for file in parse_archived_txt_file(archived_txt_file):
+                locale, slug = file.replace("/index.html", "").split("/", 1)
+                archived_files_as_keys.add(f"{bucket_prefix}/{locale}/docs/{slug}")
+            if not archived_files_as_keys:
+                raise Exception(f"found no entries inside {archived_txt_file}")
+
         for key in existing_bucket_objects:
             if key.startswith(f"{bucket_prefix}/_whatsdeployed/"):
                 # These are special and wouldn't have been uploaded
@@ -601,6 +695,42 @@ def upload_content(build_directory, content_roots, config):
                 # To be safe, only delete if it's considered "old".
                 delta = now - existing_bucket_objects[key]["LastModified"]
                 if delta.days < 30:
+                    continue
+
+            # Remember, if `key` is from a "index.html" file it will be represented
+            # something like this: `main/en-us/docs/web/api/documentorshadowroot`
+            # with the `/index.html` portion removed.
+            # But every page usually has a `index.json` file, which might look
+            # something like this: `main/en-us/docs/web/api/index.json` or
+            # `main/en-us/docs/web/api/screenshot.png`
+
+            # This if statement protects against possible deleting anything that
+            # isn't a document.
+            if "/docs/" in key:
+                is_archived = False
+                # Trying to avoid having to do another for-loop with key.startswith()
+                # so first look for the low-hanging fruit.
+                if key in archived_files_as_keys:
+                    # This is the easiest and fastest lookup
+                    is_archived = True
+                elif (
+                    re.sub(r"/(index\.json|contributors\.txt|bcd\.json)$", "", key)
+                    in archived_files_as_keys
+                ):
+                    # This is easy and fast too and covers 99% of the other
+                    # possible keys.
+                    is_archived = True
+                else:
+                    # This is for things like:
+                    # `main/en-us/docs/web/api/screenshot.png` where you can't
+                    # confidently use `path.dirname()` because the key could
+                    # be something like `main/fr/docs/web/api/manifest.json` which
+                    # is actually a "folder".
+                    for archive_file_as_key in archived_files_as_keys:
+                        if key.startswith(archive_file_as_key):
+                            is_archived = True
+                            break
+                if is_archived:
                     continue
 
             assert key.startswith(bucket_prefix)
