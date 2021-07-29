@@ -25,8 +25,7 @@ function extractSidebar($) {
   // from macros but have it hardcoded into the content. Perhaps it was the
   // result of someone once rendering out some sidebar macros.
   // We could consolidate it to just exactly one spelling (`quick_links`) but
-  // that would require having to fix 29 macros, fix thousands of archived-content
-  // pages and hundres of translated content.
+  // that would require having to fix 29 macros and hundreds of translated content.
   // By selecting for either spelling we're being defensive and safe.
   const search = $("#Quick_Links, #Quick_links");
   if (!search.length) {
@@ -424,15 +423,17 @@ function _addSingleSpecialSection($) {
             specURL.startsWith(spec.nightly.url) ||
             specURL.startsWith(spec.series.nightlyUrl)
         );
+        const specificationsData = {
+          bcdSpecificationURL: specURL,
+          title: "Unknown specification",
+          shortTitle: "Unknown specification",
+        };
         if (spec) {
-          // We only want to return exactly the keys that we will use in the
-          // client code that renders this in React.
-          return {
-            bcdSpecificationURL: specURL,
-            title: spec.title,
-            shortTitle: spec.shortTitle,
-          };
+          specificationsData.title = spec.title;
+          specificationsData.shortTitle = spec.shortTitle;
         }
+
+        return specificationsData;
       })
       .filter(Boolean);
 

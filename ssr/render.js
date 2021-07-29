@@ -4,7 +4,7 @@ import { renderToString } from "react-dom/server";
 import cheerio from "cheerio";
 
 import {
-  ALWAYS_NO_ROBOTS,
+  ALWAYS_ALLOW_ROBOTS,
   BUILD_OUT_ROOT,
   SPEEDCURVE_LUX_ID,
 } from "../build/constants";
@@ -138,6 +138,7 @@ export default function render(
     pageTitle = null,
     possibleLocales = null,
     locale = null,
+    noIndexing = null,
   } = {}
 ) {
   const buildHtml = readBuildHTML();
@@ -218,7 +219,10 @@ export default function render(
   }
 
   const robotsContent =
-    ALWAYS_NO_ROBOTS || (doc && doc.noIndexing) || pageNotFound
+    !ALWAYS_ALLOW_ROBOTS ||
+    (doc && doc.noIndexing) ||
+    pageNotFound ||
+    noIndexing
       ? "noindex, nofollow"
       : "index, follow";
   $(`<meta name="robots" content="${robotsContent}">`).insertAfter(

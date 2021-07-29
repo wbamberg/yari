@@ -49,16 +49,32 @@ async function buildSPAs(options) {
       }
       const SPAs = [
         { prefix: "search", pageTitle: "Search" },
-        { prefix: "signin", pageTitle: "Sign in" },
-        { prefix: "signup", pageTitle: "Sign up" },
-        { prefix: "settings", pageTitle: "Account settings" },
-        { prefix: "plus", pageTitle: "Plus" },
+        { prefix: "signin", pageTitle: "Sign in", noIndexing: true },
+        { prefix: "signup", pageTitle: "Sign up", noIndexing: true },
+        { prefix: "settings", pageTitle: "Account settings", noIndexing: true },
+        { prefix: "plus", pageTitle: "Plus", noIndexing: true },
+        {
+          prefix: "plus/deep-dives",
+          pageTitle: "Modern CSS in the Real World",
+          noIndexing: true,
+        },
+        {
+          prefix: "plus/deep-dives/planning-for-browser-support",
+          pageTitle: "Planning for browser support ~ Plus",
+          noIndexing: true,
+        },
+        {
+          prefix: "plus/deep-dives/your-browser-support-toolkit",
+          pageTitle: "Your browser support toolkit ~ Plus",
+          noIndexing: true,
+        },
       ];
-      for (const { prefix, pageTitle } of SPAs) {
+      for (const { prefix, pageTitle, noIndexing } of SPAs) {
         const url = `/${locale}/${prefix}`;
         const context = {
           pageTitle,
           locale: VALID_LOCALES.get(locale) || locale,
+          noIndexing,
         };
         if (prefix === "settings") {
           // This SPA needs a list of all valid locales
@@ -136,6 +152,7 @@ async function buildSPAs(options) {
       }
     }
   }
+
   if (!options.quiet) {
     console.log(`Built ${buildCount} SPA related files`);
   }

@@ -4,7 +4,7 @@ import useSWR, { mutate } from "swr";
 
 import { CRUD_MODE } from "../constants";
 import { useGA } from "../ga-context";
-import { useDocumentURL } from "./hooks";
+import { useDocumentURL, useCopyExamplesToClipboard } from "./hooks";
 import { Doc } from "./types";
 // Ingredients
 import { Prose, ProseWithHeading } from "./ingredients/prose";
@@ -20,9 +20,8 @@ import { TOC } from "./organisms/toc";
 import { RenderSideBar } from "./organisms/sidebar";
 import { RetiredLocaleNote } from "./molecules/retired-locale-note";
 import { MainContentContainer } from "../ui/atoms/page-content";
+import { Loading } from "../ui/atoms/loading";
 import { Metadata } from "./organisms/metadata";
-
-import { ReactComponent as Dino } from "../assets/dino.svg";
 
 import "./index.scss";
 
@@ -73,6 +72,8 @@ export function Document(props /* TODO: define a TS interface for this */) {
       revalidateOnFocus: CRUD_MODE,
     }
   );
+
+  useCopyExamplesToClipboard(doc);
 
   React.useEffect(() => {
     if (!doc && !error) {
@@ -132,7 +133,7 @@ export function Document(props /* TODO: define a TS interface for this */) {
   }, []);
 
   if (!doc && !error) {
-    return <LoadingDocumentPlaceholder />;
+    return <Loading minHeight={600} message="Loading document..." />;
   }
 
   if (error) {
@@ -149,8 +150,6 @@ export function Document(props /* TODO: define a TS interface for this */) {
 
   return (
     <>
-      {doc.isArchive && !doc.isTranslated && <Archived />}
-
       {/* if we have either breadcrumbs or translations for the current page,
       continue rendering the section */}
       {(doc.parents || !!translations.length) && (
@@ -172,9 +171,7 @@ export function Document(props /* TODO: define a TS interface for this */) {
 
       <MainContentContainer>
         {!isServer && CRUD_MODE && !props.isPreview && doc.isActive && (
-          <React.Suspense
-            fallback={<p className="loading-toolbar">Loading toolbar</p>}
-          >
+          <React.Suspense fallback={<Loading message={"Loading toolbar"} />}>
             <Toolbar
               doc={doc}
               reloadPage={() => {
@@ -192,24 +189,6 @@ export function Document(props /* TODO: define a TS interface for this */) {
 
       {doc.sidebarHTML && <RenderSideBar doc={doc} />}
     </>
-  );
-}
-
-function LoadingDocumentPlaceholder() {
-  return (
-    <>
-      <Dino className="main-content loading-document-placeholder" />
-    </>
-  );
-}
-
-function Archived() {
-  return (
-    <div className="archived">
-      <p>
-        <b>This is an archived page.</b> It's not actively maintained.
-      </p>
-    </div>
   );
 }
 

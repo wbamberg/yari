@@ -1,9 +1,11 @@
+@use "sass:math";
+
 /*
 Keyboard & screen reader skip link menu
 ********************************************************************** */
 
 @import "~@mdn/minimalist/sass/vars/layout";
-@import "~@mdn/minimalist/sass/vars/color-palette";
+@import "~@mdn/minimalist/sass/vars/mdn-web-docs-palette";
 
 .a11y-nav {
   position: absolute;
@@ -15,14 +17,14 @@ Keyboard & screen reader skip link menu
     background-color: rgba(255, 255, 255, 0.9);
     font-weight: bold;
     left: 0;
-    padding: ($base-spacing / 2);
+    padding: math.div($base-spacing, 2);
     position: absolute;
     right: 0;
     text-align: center;
 
     &:hover,
     &:focus {
-      box-shadow: 3px 3px 5px $neutral-550;
+      box-shadow: 3px 3px 5px $mdn-neutral100;
       text-decoration: none;
       top: 20em;
     }

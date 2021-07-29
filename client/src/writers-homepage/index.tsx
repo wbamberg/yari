@@ -17,7 +17,7 @@ export default function WritersHomepage() {
       <div id="writers-homepage">
         <h2>Writer's home page</h2>
 
-        <Search />
+        <Search preload={true} />
 
         {!isServer && (
           <React.Suspense fallback={null}>
@@ -94,6 +94,9 @@ export default function WritersHomepage() {
         </ul>
         <h3>Tools</h3>
         <ul>
+          <li>
+            <Link to={`/${locale}/_translations`}>Translations</Link>
+          </li>
           <li>
             <Link to={`/${locale}/_sitemap`}>Sitemap</Link>
           </li>
