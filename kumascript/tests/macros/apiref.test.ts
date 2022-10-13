@@ -76,7 +76,7 @@ const expectedStaticProperties = {
       text: "MyTestStaticProperty1",
       target: "/fr/docs/Web/API/TestInterface/TestStaticProperty1",
       title:
-        "The TestStaticProperty1 property of the TestInterface interface has no badges.",
+        "La propriété TestStaticProperty1 de l'interface TestInterface n'a pas de badge.",
     },
   ],
   ja: [
@@ -106,7 +106,7 @@ const expectedInstanceProperties = {
       text: "MyTestInstanceProperty1",
       target: "/fr/docs/Web/API/TestInterface/MyTestInstanceProperty1",
       title:
-        "The MyTestInstanceProperty1 property of the TestInterface interface has no badges.",
+        "La propriété MyTestInstanceProperty1 de l'interface TestInterface n'a pas de badge.",
     },
   ],
   ja: [
@@ -155,14 +155,14 @@ const expectedStaticMethods = {
       text: "MyTestStaticMethod1",
       target: "/fr/docs/Web/API/TestInterface/MyTestStaticMethod1",
       title:
-        "The MyTestStaticMethod1 property of the TestInterface interface is experimental.",
+        "La propriété MyTestStaticMethod1 de l'interface TestInterface est expérimentale.",
     },
     {
       badges: ["icon-deprecated", "icon-nonstandard"],
       text: "MyTestStaticMethod2",
       target: "/fr/docs/Web/API/TestInterface/MyTestStaticMethod2",
       title:
-        "The MyTestStaticMethod2 property of the TestInterface interface is deprecated and non-standard.",
+        "La propriété MyTestStaticMethod2 de l'interface TestInterface est dépréciée et non-standard.",
     },
     {
       badges: [
@@ -174,7 +174,7 @@ const expectedStaticMethods = {
       text: "MyTestStaticMethod3",
       target: "/fr/docs/Web/API/TestInterface/MyTestStaticMethod3",
       title:
-        "The MyTestStaticMethod3 property of the TestInterface interface has all the badges.",
+        "La propriété MyTestStaticMethod3 de l'interface TestInterface a tous les badges.",
     },
   ],
   ja: [
@@ -242,14 +242,14 @@ const expectedInstanceMethods = {
       text: "MyTestInstanceMethod1",
       target: "/fr/docs/Web/API/TestInterface/MyTestInstanceMethod1",
       title:
-        "The MyTestInstanceMethod1 property of the TestInterface interface is experimental.",
+        "La propriété MyTestInstanceMethod1 de l'interface TestInterface est expérimentale.",
     },
     {
       badges: ["icon-deprecated", "icon-nonstandard"],
       text: "MyTestInstanceMethod2",
       target: "/fr/docs/Web/API/TestInterface/MyTestInstanceMethod2",
       title:
-        "The MyTestInstanceMethod2 property of the TestInterface interface is deprecated and non-standard.",
+        "La propriété MyTestInstanceMethod2 de l'interface TestInterface est dépréciée et non-standard.",
     },
     {
       badges: [
@@ -261,7 +261,7 @@ const expectedInstanceMethods = {
       text: "MyTestInstanceMethod3",
       target: "/fr/docs/Web/API/TestInterface/MyTestInstanceMethod3",
       title:
-        "The MyTestInstanceMethod3 property of the TestInterface interface has all the badges.",
+        "La propriété MyTestInstanceMethod3 de l'interface TestInterface a tous les badges.",
     },
   ],
   ja: [
@@ -324,21 +324,21 @@ const expectedEvents = {
       text: "TestEvent1",
       target: "/fr/docs/Web/API/TestInterface/TestEvent1",
       title:
-        "The MyTestEvent1 event of the TestInterface interface has no badges.",
+        "L'évènement MyTestEvent1 de l'interface TestInterface n'a pas de badge.",
     },
     {
       badges: ["icon-deprecated", "icon-nonstandard"],
       text: "TestEvent2",
       target: "/fr/docs/Web/API/TestInterface/TestEvent2",
       title:
-        "The MyTestEvent2 event of the TestInterface interface is deprecated and non-standard.",
+        "L'évènement MyTestEvent2 de l'interface TestInterface est déprécié et non-standard.",
     },
     {
       badges: [],
       text: "TestEvent3_another_suffix",
       target: "/fr/docs/Web/API/TestInterface/TestEvent3",
       title:
-        "The MyTestEvent3 event of the TestInterface interface has no badges.",
+        "L'évènement MyTestEvent3 de l'interface TestInterface n'a pas de badge.",
     },
   ],
   ja: [
