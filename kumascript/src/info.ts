@@ -198,6 +198,7 @@ const info = {
       locale,
       slug,
       title,
+      shortTitle: document.metadata["short-title"],
       tags: tags || [],
       pageType: document.metadata["page-type"],
       translations: [], // TODO Object.freeze(buildTranslationObjects(data)),
