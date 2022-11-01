@@ -31,17 +31,23 @@ export function SidebarContainer({ doc, children }) {
   useEffect(() => {
     const sidebar = document.querySelector(".sidebar");
     const currentSidebarItem = sidebar?.querySelector("em");
+    // We expect markup like: details -> ol -> li -> em
     const section =
       currentSidebarItem?.parentElement?.parentElement?.parentElement;
-    if (sidebar && section && currentSidebarItem) {
+    if (sidebar && currentSidebarItem) {
       const sidebarVisibleHeight = sidebar.getBoundingClientRect().height;
+      // If we found a probable section,
+      // and the section and current item are close enough to be both visible,
+      // then scroll so the section is at the top.
       if (
-        currentSidebarItem.offsetTop - section.offsetTop <
-        sidebarVisibleHeight
+        section &&
+        section.tagName === "DETAILS" &&
+        currentSidebarItem.offsetTop - section.offsetTop < sidebarVisibleHeight
       ) {
         sidebar.scrollTo({
           top: section.offsetTop,
         });
+        // Otherwise, just scroll the current item into view
       } else {
         sidebar.scrollTo({
           top: currentSidebarItem.offsetTop - window.innerHeight / 3,
