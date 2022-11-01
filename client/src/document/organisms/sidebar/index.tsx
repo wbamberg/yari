@@ -28,6 +28,28 @@ export function SidebarContainer({ doc, children }) {
     }
   }, [isSidebarOpen]);
 
+  useEffect(() => {
+    const sidebar = document.querySelector(".sidebar");
+    const currentSidebarItem = sidebar?.querySelector("em");
+    const section =
+      currentSidebarItem?.parentElement?.parentElement?.parentElement;
+    if (sidebar && section && currentSidebarItem) {
+      const sidebarVisibleHeight = sidebar.getBoundingClientRect().height;
+      if (
+        currentSidebarItem.offsetTop - section.offsetTop <
+        sidebarVisibleHeight
+      ) {
+        sidebar.scrollTo({
+          top: section.offsetTop,
+        });
+      } else {
+        sidebar.scrollTo({
+          top: currentSidebarItem.offsetTop - window.innerHeight / 3,
+        });
+      }
+    }
+  }, [isSidebarOpen]);
+
   return (
     <>
       <nav id="sidebar-quicklinks" className={classes}>
