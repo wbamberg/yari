@@ -29,14 +29,21 @@ export function SidebarContainer({ doc, children }) {
   }, [isSidebarOpen]);
 
   useEffect(() => {
-    const sidebar = document.querySelector("#sidebar-quicklinks");
+    const sidebar = document.querySelector(
+      "#sidebar-quicklinks"
+    ) as HTMLElement | null;
     const currentSidebarItem = sidebar?.querySelector("em");
     if (sidebar && currentSidebarItem) {
-      [sidebar, sidebar.querySelector(".sidebar-inner")].forEach((n) =>
-        n?.scrollTo({
-          top: currentSidebarItem.offsetTop - window.innerHeight / 3,
-        })
-      );
+      // Distance between the start of the sidebar and this item
+      const distance = currentSidebarItem.offsetTop + sidebar.offsetTop;
+      // If the current sidebar item is not already visible, scroll
+      if (distance > sidebar.clientHeight) {
+        [sidebar, sidebar.querySelector(".sidebar-inner")].forEach((n) =>
+          n?.scrollTo({
+            top: currentSidebarItem.offsetTop - window.innerHeight / 3,
+          })
+        );
+      }
     }
   }, []);
 
