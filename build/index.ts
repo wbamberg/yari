@@ -31,6 +31,7 @@ export { buildSPAs } from "./spas";
 import LANGUAGES_RAW from "../libs/languages";
 import { safeDecodeURIComponent } from "../kumascript/src/api/util";
 import { wrapTables } from "./wrap-tables";
+import { injectPreviousNext } from "./inject-previous-next";
 
 const LANGUAGES = new Map(
   Object.entries(LANGUAGES_RAW).map(([locale, data]) => {
@@ -561,6 +562,11 @@ export async function buildDocument(
   // We might want to delete this injection in 2021 some time when all content's
   // raw HTML has been fixed to always have it in there already.
   injectNotecardOnWarnings($);
+
+  // Only guide pages that have weight set can have Next/Previous buttons
+  if (metadata["page-type"] === "guide" && metadata.weight !== undefined) {
+    injectPreviousNext($, doc.locale, document.fileInfo, metadata.slug);
+  }
 
   formatNotecards($);
 

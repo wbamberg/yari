@@ -173,6 +173,7 @@ export interface DocFrontmatter {
   title?: string;
   slug?: string;
   original_slug?: string;
+  weight: number;
 }
 
 export type Section = ProseSection | SpecificationsSection | BCDSection;
