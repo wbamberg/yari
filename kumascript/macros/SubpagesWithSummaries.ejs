@@ -1,24 +1,19 @@
 <%
-// Creates a list of the subpages of the current page, with their summaries,
-// as a definition list. Doesn't do any additional formatting.
+// Creates a list of the subpages of the current page,(or the page given in the parameter),
+// with their summaries, as a definition list. Doesn't do any additional formatting.
 //
 // Parameters:
 //
-//  $0  A list of pages to output instead of the subpages of the current page;
-//      OPTIONAL.
+//  $0  The slug of a page to use as the root, if you don't want to use the current page
 
 function pageSorter(a, b) {
     return a.title.localeCompare(b.title);
 }
 
-var termList;
 var html = "";
 
-if ($0 && ($0 != undefined)) {
-    termList = JSON.parse($0);
-} else {
-    termList = await page.subpagesExpand();
-}
+const target = $0? await wiki.getPage(`/${env.locale}/docs/${$0}`): page;
+const termList = await target.subpages;
 
 var numTerms = termList.length;
 
