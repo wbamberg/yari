@@ -15,28 +15,28 @@
 
   "Static_methods": {
     "en-US": "Static methods",
-    "fr": "Méthodes",
+    "fr": "Méthodes statiques",
     "ja": "メソッド",
     "es": "Métodos"
   },
 
   "Static_properties": {
     "en-US": "Static properties",
-    "fr": "Propriétés",
+    "fr": "Propriétés statiques",
     "ja": "プロパティ",
     "es": "Propiedades"
   },
 
   "Instance_methods": {
     "en-US": "Instance methods",
-    "fr": "Méthodes",
+    "fr": "Méthodes d'instance",
     "ja": "メソッド",
     "es": "Métodos"
   },
 
   "Instance_properties": {
     "en-US": "Instance properties",
-    "fr": "Propriétés",
+    "fr": "Propriétés d'instance",
     "ja": "プロパティ",
     "es": "Propiedades"
   },
@@ -57,7 +57,7 @@
 
   "Implemented_by": {
     "en-US": "Implemented by:",
-    "fr": "Implémenté par :",
+    "fr": "Implémenté(e) par :",
     "ja": "Implemented by:",
     "es": "Implementado por:"
   },
@@ -92,7 +92,7 @@
 
   "Events": {
     "en-US": "Events",
-    "fr": "Événements",
+    "fr": "Évènements",
     "ja": "イベント",
     "es": "Eventos"
   },
